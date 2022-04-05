@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+declare -r \
+	config_file="${XDG_CONFIG_HOME:-${HOME}/.config}/oc-setversion/paths.conf" \
+	log_level="${OCSETVERSION_LOGLEVEL:-}" \
+	bin_dir="${HOME}/.local/bin"
+
+
+# Only print logs if `OCSETVERSION_LOGLEVEL` is set to `info` in the
+# environment.
+print_info() {
+	declare -r message="$*"
+	if [ "$log_level" == 'info' ]; then
+		>&2 echo "GOUP [INFO]: ${message}"
+	fi
+}
+
+ensure_installed() {
+	declare \
+		requested_version="$1" \
+		base_url_latest='https://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview' \
+		base_url_release='https://mirror.openshift.com/pub/openshift-v4/clients/ocp'
+
+	declare \
+		version='' \
+		base_url=''
+
+	if [[ "$requested_version" == latest-* ]]; then
+		base_url="$base_url_latest"
+		sha256sum="$(curl -sSL "${base_url_latest}/${requested_version}/sha256sum.txt")"
+		version="$(sed -n 's|^[^\s]\+..openshift-install-linux-\([^\s]\+\).tar.gz|\1|p' <<< "$sha256sum")"
+	else
+		base_url="$base_url_release"
+		version="$requested_version"
+	fi
+
+	if [[ "$version" == '' ]]; then
+		>&2 echo "Version not found: ${requested_version}"
+		exit 1
+	fi
+	
+	if ! command -v "openshift-install-linux-${version}" > /dev/null || ! command -v "openshift-client-linux-${version}" > /dev/null; then
+
+		print_info "Downloading the OpenShift installer..."
+		curl -sSfL "${base_url}/${requested_version}/openshift-install-linux-${version}.tar.gz" \
+			| tar xz -C "$bin_dir" --transform "s|.*|openshift-install-linux-${version}|" openshift-install 2>/dev/null \
+			&& chmod +x "${bin_dir}/openshift-install-linux-${version}" \
+			|| exit 2
+
+		print_info "Downloading the OpenShift client..."
+		curl -sSfL "${base_url}/${requested_version}/openshift-client-linux-${version}.tar.gz" \
+			| tar xz -C "$bin_dir" --transform "s|.*|openshift-client-linux-${version}|" oc 2>/dev/null \
+			&& chmod +x "${bin_dir}/openshift-client-linux-${version}" \
+			|| exit 2
+	fi
+
+	printf "%s" "$version"
+}
+
+# Fetches the configured oc version from the config file. If no match is found,
+# looks in parent directories until `/`.
+#
+# The `while` loop will first look for a match with the full `$PWD`. Then it
+# will strip path elements one by one, virtually descending the filesystem tree
+# until it finds a match. If no match is found, it doesn't return anything.
+version_from_config() {
+	if ! [ -f "$config_file" ]; then
+		return
+	fi
+
+	declare target='' version=''
+
+	target="$(realpath "$PWD")/x" \
+
+	while [ "$target" != '/' ]; do
+		target="$(dirname "$target")"
+		version="$(sed -n "0,\|${target} |s|${target} ||p" "$config_file")"
+		if [ -n "$version" ]; then
+			printf "%s" "$version"
+			return
+		fi
+	done
+}
+
+# If this script is called with `$0 setversion`, then this function is executed
+# and the actual oc binary will not be called. This function saves `$PWD` to
+# the config file, and sets it to `$2`. If the oc version is not passed in
+# `$2`, then this function deletes this `$PWD` entry from the configuration.
+if [ "${1:-}" == 'setversion' ]; then
+	mkdir -p "$(dirname "$config_file")"
+	touch "$config_file"
+
+	declare requested_version="${2:-}"
+	declare version=''
+
+	sed -i "\|${PWD} |d" "$config_file"
+	if [ -n "$requested_version" ]; then
+		version="$(ensure_installed "$requested_version")"
+		echo "${PWD} ${version}" >> "$config_file"
+		print_info "set path '${PWD}' to '${version}'"
+		exec oc version
+	fi
+	print_info "removed path '${PWD}'"
+	exit 0
+fi
+
+declare version
+version="$(version_from_config)"
+readonly version
+
+if [ -z "$version" ]; then
+	>&2 echo "Error: no configuration set for this directory."
+	exit 1
+else
+	print_info "config match: '$version'"
+
+	# Execute oc or openshift-install with the original arguments.
+	if [ "${1:-}" == 'install' ]; then
+		shift
+		exec "openshift-install-linux-${version}" "$@"
+	else
+		exec "openshift-client-linux-${version}" "$@"
+	fi
+fi
