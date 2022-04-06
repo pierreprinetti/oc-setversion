@@ -11,7 +11,8 @@ Requirements:
 ```shell
 curl -sSL \
 	--url 'https://raw.githubusercontent.com/pierreprinetti/oc-setversion/main/oc-setversion' \
-	> ~/.local/bin/oc
+	> ~/.local/bin/oc \
+	&& chmod +x ~/.local/bin/oc
 ```
 
 ## Update
@@ -19,7 +20,8 @@ curl -sSL \
 ```shell
 curl -sSL \
 	--url 'https://raw.githubusercontent.com/pierreprinetti/oc-setversion/main/oc-setversion' \
-	> ~/.local/bin/oc
+	> ~/.local/bin/oc \
+	&& chmod +x ~/.local/bin/oc
 ```
 
 ## Use
