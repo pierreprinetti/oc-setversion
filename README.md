@@ -56,3 +56,8 @@ rm "${XDG_CONFIG_HOME:-${HOME}/.config}/oc-setversion/paths.conf"
 ```shell
 cat "${XDG_CONFIG_HOME:-${HOME}/.config}/oc-setversion/paths.conf"
 ```
+
+## Warning
+
+This script locally installs `oc` and `openshift-install` for every requested
+version in `${HOME}/.local/bin`. The size of that folder can grow quickly!
