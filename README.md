@@ -27,6 +27,8 @@ $ oc setversion 4.7.1
 oc get pods
 ```
 
+Use `latest-4.11` to automatically select the latest 4.11 nightly.
+
 `oc install` runs `openshift-install`:
 
 ```shell
