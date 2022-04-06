@@ -3,9 +3,6 @@
 Sets the desired version of `oc` and `openshift-install` for this particular `$PWD` and its subdirectories.
 Downloads and installs the binaries if they are not available already.
 
-Requirements:
-* `~/.local/bin` is in `$PATH`
-
 ## Install
 
 ```shell
@@ -15,14 +12,11 @@ curl -sSL \
 	&& chmod +x ~/.local/bin/oc
 ```
 
+You can replace `/.local/bin/oc` with any directory in `$PATH`.
+
 ## Update
 
-```shell
-curl -sSL \
-	--url 'https://raw.githubusercontent.com/pierreprinetti/oc-setversion/main/oc-setversion' \
-	> ~/.local/bin/oc \
-	&& chmod +x ~/.local/bin/oc
-```
+Same as Install.
 
 ## Use
 

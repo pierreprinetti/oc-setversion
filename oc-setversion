@@ -41,7 +41,7 @@ ensure_installed() {
 		exit 1
 	fi
 	
-	if ! command -v "openshift-install-linux-${version}" > /dev/null || ! command -v "openshift-client-linux-${version}" > /dev/null; then
+	if ! [[ -x "${bin_dir}/openshift-install-linux-${version}" ]] || ! [[ -x "${bin_dir}/openshift-client-linux-${version}" ]]; then
 
 		print_info "Downloading the OpenShift installer..."
 		curl -sSfL "${base_url}/${requested_version}/openshift-install-linux-${version}.tar.gz" \
@@ -119,8 +119,8 @@ else
 	# Execute oc or openshift-install with the original arguments.
 	if [ "${1:-}" == 'install' ]; then
 		shift
-		exec "openshift-install-linux-${version}" "$@"
+		exec "${bin_dir}/openshift-install-linux-${version}" "$@"
 	else
-		exec "openshift-client-linux-${version}" "$@"
+		exec "${bin_dir}/openshift-client-linux-${version}" "$@"
 	fi
 fi
