@@ -59,10 +59,10 @@ ensure_installed() {
 	printf "%s" "$version"
 }
 
-# Fetches the configured oc version from the config file. If no match is found,
+# Fetches the configured oc version from the config file in $HOME. If no match is found,
 # looks in parent directories until `/`.
 #
-# The `while` loop will first look for a match with the full `$PWD`. Then it
+# The `while` loop will first look for a match with the full `$HOME`. Then it
 # will strip path elements one by one, virtually descending the filesystem tree
 # until it finds a match. If no match is found, it doesn't return anything.
 version_from_config() {
@@ -72,7 +72,7 @@ version_from_config() {
 
 	declare target='' version=''
 
-	target="$(realpath "$PWD")/x" \
+	target="$(realpath "$HOME")/x" \
 
 	while [ "$target" != '/' ]; do
 		target="$(dirname "$target")"
