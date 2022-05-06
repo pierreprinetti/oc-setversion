@@ -117,8 +117,8 @@ else
 	print_info "config match: '$version'"
 
 	# Execute oc or openshift-install with the original arguments.
-	if [ "${1:-}" == 'install' ]; then
-		shift
+    binary=$(basename ${0})
+	if [ "${binary}" == 'openshift-install' ]; then
 		exec "${bin_dir}/openshift-install-linux-${version}" "$@"
 	else
 		exec "${bin_dir}/openshift-client-linux-${version}" "$@"

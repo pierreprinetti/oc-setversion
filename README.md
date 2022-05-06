@@ -29,12 +29,6 @@ oc get pods
 
 Use `latest-4.11` to automatically select the latest 4.11 nightly.
 
-`oc install` runs `openshift-install`:
-
-```shell
-oc install --dir /tmp/tmp.h0xN7tjsI9 create manifests
-```
-
 ### Reset this directory's setting
 
 ```shell
