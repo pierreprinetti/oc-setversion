@@ -100,7 +100,7 @@ if [ "${1:-}" == 'setversion' ]; then
 		version="$(ensure_installed "$requested_version")"
 		echo "${PWD} ${version}" >> "$config_file"
 		print_info "set path '${PWD}' to '${version}'"
-		exec oc version
+		exec "$0" version
 	fi
 	print_info "removed path '${PWD}'"
 	exit 0
