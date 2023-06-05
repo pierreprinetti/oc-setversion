@@ -30,7 +30,7 @@ ensure_installed() {
 	if [[ "$requested_version" == latest-* ]]; then
 		base_url="$base_url_latest"
 		sha256sum="$(curl -sSL "${base_url_latest}/${requested_version}/sha256sum.txt")"
-		version="$(sed -n 's|^[^\s]\+..openshift-install-linux-\([^\s]\+\).tar.gz|\1|p' <<< "$sha256sum")"
+		version="$(sed -n 's|^[^\s]\+..openshift-install-linux-\(4[^\s]\+\).tar.gz|\1|p' <<< "$sha256sum")"
 	else
 		base_url="$base_url_release"
 		version="$requested_version"
