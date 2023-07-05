@@ -40,7 +40,7 @@ ensure_installed() {
 		>&2 echo "Version not found: ${requested_version}"
 		exit 1
 	fi
-	
+
 	if ! [[ -x "${bin_dir}/openshift-install-linux-${version}" ]] || ! [[ -x "${bin_dir}/openshift-client-linux-${version}" ]]; then
 
 		print_info "Downloading the OpenShift installer..."
@@ -117,7 +117,7 @@ else
 	print_info "config match: '$version'"
 
 	# Execute oc or openshift-install with the original arguments.
-    binary=$(basename ${0})
+	binary=$(basename ${0})
 	if [ "${binary}" == 'openshift-install' ]; then
 		exec "${bin_dir}/openshift-install-linux-${version}" "$@"
 	else
