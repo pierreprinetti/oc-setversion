@@ -89,6 +89,11 @@ version_from_config() {
 # the config file, and sets it to `$2`. If the oc version is not passed in
 # `$2`, then this function deletes this `$PWD` entry from the configuration.
 if [ "${1:-}" == 'setversion' ]; then
+	if [ -z "$2" ]; then
+		echo "Error: Need a version argument"
+		exit 1
+	fi
+
 	mkdir -p "$(dirname "$config_file")"
 	touch "$config_file"
 
